@@ -2,6 +2,7 @@ import json
 from anytree import Node, RenderTree
 from anytree.search import find
 
+
 class TaxonomyParser:
 
     """
@@ -38,6 +39,7 @@ class TaxonomyParser:
         for pre, _, node in RenderTree(n):
             treestr = u"%s%s" % (pre, node.name)
             print(treestr.ljust(8), node.description)
+
 
    
     def read_from_json(self, fname):

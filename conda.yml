@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python=3.9
   - pip=24.0
+  - python-graphviz
   - pip:
     - python-dotenv
     - azure-ai-ml
