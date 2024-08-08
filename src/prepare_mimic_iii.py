@@ -18,9 +18,9 @@ def remove_evm_codes(df: pd.DataFrame) -> pd.DataFrame:
 def clean_note_text(text: str) -> str:
     # Remove newline characters
     text = text.strip()
-    text = text.replace('\n', ' ')
-    text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('**','')
-    text = text.replace(',','').replace(';','').replace('\'','').replace('\"','')
+    text = text.replace('\n', '').replace('\"','')
+    text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('*','')
+    text = text.replace(',','').replace(';','').replace('/','').replace('\\','').replace('(','').replace(')','')
     text = re.sub('\s+',' ', text)
 
     return text

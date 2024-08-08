@@ -3,9 +3,7 @@
         { "name": "root", "description": "root"}
     ],
     "L1": [
-        { "name": "0", "description": "Infectious and Parasitic Diseases" , "parent": "root" },
-        { "name": "1", "description": "Neoplasms", "parent": "root" },
-        { "name": "2", "description": "Endocrine, Nutritional and Metabolic Diseases, and Immunity Disorders", "parent": "root" }
+        { "name": "0", "description": "Infectious and Parasitic Diseases" , "parent": "root" }
     ],
     "L2": [
         { "name": "00", "description": "Intestinal infectious diseases","parent": "0"},

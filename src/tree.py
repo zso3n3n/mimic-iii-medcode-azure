@@ -1,5 +1,6 @@
 import json
 from anytree import Node, RenderTree
+from anytree.exporter import DotExporter
 from anytree.search import find
 
 
@@ -41,7 +42,13 @@ class TaxonomyParser:
             print(treestr.ljust(8), node.description)
 
 
-   
+    def dot_export(self, code_tree, top_node):
+        # draw tree
+        DotExporter(code_tree.find_by_name(top_node),
+                    nodenamefunc=lambda n: f'{n.name}:{n.description}',
+                    ).to_picture("images/image.png")
+    
+
     def read_from_json(self, fname):
         """
         Read the taxonomy from a JSON file given as input
