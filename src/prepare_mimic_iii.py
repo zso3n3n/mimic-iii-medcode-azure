@@ -1,6 +1,9 @@
 import pandas as pd
 import re
 import logging
+import ast
+
+from string import digits
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -14,14 +17,32 @@ def remove_evm_codes(df: pd.DataFrame) -> pd.DataFrame:
     output = output[~output['ICD9_CODE'].str.startswith("M")]
     return output
 
-# TODO
 def clean_note_text(text: str) -> str:
-    # Remove newline characters
+   
+    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    text = text.replace('\"', '').replace('\'', '')
+    text = text.replace('*','')
+    text = text.replace('[','').replace(']','').replace('{','').replace('}','')
+    text = text.replace('-',' ')
+
+    remove_digits = str.maketrans('', '', digits)
+    text = text.translate(remove_digits)
     text = text.strip()
-    text = text.replace('\n', '').replace('\"','')
-    text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('*','')
-    text = text.replace(',','').replace(';','').replace('/','').replace('\\','').replace('(','').replace(')','')
-    text = re.sub('\s+',' ', text)
+
+
+    #text = text.split(':')
+    #text = re.sub('\s+',' ', text)
+    #text = text.strip()
+    #text = text.replace('\n', '').replace('\"','')
+    #text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('*','')
+    #text = text.replace(',','').replace(';','').replace('/','').replace('\\','').replace('(','').replace(')','').replace('.','')
+    #text = text.replace('#','').replace('!','').replace('?','').replace(':','').replace('-','').replace('_','').replace('+','')
+
+
+    #text = text.replace('Admission Date:','').replace('Discharge Date:','').replace('Date of Birth:','')
+
+    #remove_digits = str.maketrans('', '', digits)
+    #text = text.translate(remove_digits)
 
     return text
 
@@ -29,7 +50,7 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     
     
     max_notes = 1
-    max_icd_class = 279
+    max_icd_class = 88
     logger.info(f"Data Parameters:\n max_notes: {max_notes}\n max_icd9_class: {max_icd_class}")
 
     # Read in data
@@ -41,7 +62,7 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     # Get NOTEEVENTS for HADM_IDs with only <max_notes>
     note_events = pd.DataFrame()
     logger.info("Reading in NOTEEVENTS.csv.gz")
-    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=400000):
+    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=100000):
         # Get HADM_IDs with only one note
         sub_df = reader[reader['HADM_ID'].map(reader['HADM_ID'].value_counts()) <= max_notes]
         note_events = pd.concat([note_events, sub_df])
@@ -58,22 +79,22 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].str.slice(0, 3)
 
     # Convert code column to int
-    diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].apply(lambda x: int(x))
-
-    # Start with just the 001-279 classes
-    diagnoses = diagnoses[diagnoses['ICD9_CODE'] <= max_icd_class]
+    # diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].apply(lambda x: int(x))
 
     # Clean Note Text
     logger.info("Cleaning note text")
     note_events['TEXT'] = note_events['TEXT'].apply(clean_note_text) # TODO - improve
+
+    # Start with just the 001-max classes
+    diagnoses = diagnoses[diagnoses['ICD9_CODE'].apply(lambda x: int(x)) <= max_icd_class]
 
     # Join datasets
     logger.info("Joining datasets")
     joined = note_events.join(diagnoses.set_index("HADM_ID"), on=['HADM_ID'], how='inner').groupby(['HADM_ID']).agg(tuple).map(set).map(list).reset_index()
 
     # write dataframe
-    output_path = "joined/dataset_single_001_279.csv.gz"
-    joined.to_csv(data_folder + 'joined/dataset_single_001_279.csv.gz', index=False, compression='gzip')
+    output_path = "joined/dataset_single_001_088.csv.gz"
+    joined.to_csv(data_folder + output_path, index=False, compression='gzip')
     logger.info(f"Write dataframe to {data_folder + output_path}")
 
     return joined
