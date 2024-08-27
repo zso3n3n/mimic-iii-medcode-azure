@@ -1,6 +1,7 @@
 from openai import AzureOpenAI
 from typing import List
 from dotenv import load_dotenv, find_dotenv
+from textwrap import dedent
 import openai
 import os
 import ast
@@ -10,6 +11,7 @@ load_dotenv(find_dotenv())
 print(os.getenv("AZURE_OPENAI_BASE"))
 logger = logging.getLogger(__name__)
 openai.log='warning'
+
 
 def call_aoai(sys:str, prompt:str) -> List:
 
@@ -22,9 +24,9 @@ def call_aoai(sys:str, prompt:str) -> List:
     response = aoai_client.chat.completions.create(
         model=os.getenv("AZURE_DEPLOYMENT_NAME"), # model = "deployment_name".
         messages=[
-            {"role": "system", "content": sys},
-            {"role": "user", "content": prompt}
-        ]
+            {"role": "system", "content": dedent(sys)},
+            {"role": "user", "content": dedent(prompt)}
+        ],
     )
 
     try:

@@ -1,9 +1,12 @@
 import pandas as pd
-import re
 import logging
-import ast
+import nltk
 
 from string import digits
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+nltk.download('punkt')
+nltk.download('stopwords')
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -17,32 +20,31 @@ def remove_evm_codes(df: pd.DataFrame) -> pd.DataFrame:
     output = output[~output['ICD9_CODE'].str.startswith("M")]
     return output
 
+def remove_stop_words(text):
+    stop_words = set(stopwords.words('english'))
+    word_tokens = word_tokenize(text)
+    filtered_sentence = [word for word in word_tokens if word.lower() not in stop_words]
+    return ' '.join(filtered_sentence)
+
 def clean_note_text(text: str) -> str:
    
     text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
     text = text.replace('\"', '').replace('\'', '')
-    text = text.replace('*','')
-    text = text.replace('[','').replace(']','').replace('{','').replace('}','')
+    text = text.replace('*','').replace('#','').replace(':','').replace(';','')
+    text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('(','').replace(')','')
     text = text.replace('-',' ')
 
+    # Remove numbers
     remove_digits = str.maketrans('', '', digits)
     text = text.translate(remove_digits)
+
+    # remove stop words
+    text = remove_stop_words(text)
+
+    # Remove extra whitespace
+    # text = ' '.join(text.split())
+
     text = text.strip()
-
-
-    #text = text.split(':')
-    #text = re.sub('\s+',' ', text)
-    #text = text.strip()
-    #text = text.replace('\n', '').replace('\"','')
-    #text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('*','')
-    #text = text.replace(',','').replace(';','').replace('/','').replace('\\','').replace('(','').replace(')','').replace('.','')
-    #text = text.replace('#','').replace('!','').replace('?','').replace(':','').replace('-','').replace('_','').replace('+','')
-
-
-    #text = text.replace('Admission Date:','').replace('Discharge Date:','').replace('Date of Birth:','')
-
-    #remove_digits = str.maketrans('', '', digits)
-    #text = text.translate(remove_digits)
 
     return text
 
@@ -77,9 +79,6 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
 
     # Shorten codes to 3 digits (for now)
     diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].str.slice(0, 3)
-
-    # Convert code column to int
-    # diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].apply(lambda x: int(x))
 
     # Clean Note Text
     logger.info("Cleaning note text")

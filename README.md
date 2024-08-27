@@ -14,7 +14,7 @@ To run the repository code download the data to a data/ in the home directory. T
 
 The approach is the leverage small language model(s) to traverse a heirarchy of ICD-9 codes and ask many small questions to classify a Note Event from the MIMI-III dataset.
 
-For example, the image below is a representation of a small portion of the ICD9 code tree. The branch in the picture below shows a subset of the 'Infectious and Parasitic Disease' Chapter of the ICD9 code tree. [View a full json representation of the taxonomy here.](./icd9_full.json)  
+For example, the image below is a representation of a small portion of the ICD9 code tree. The branch in the picture below shows a subset of the 'Infectious and Parasitic Disease' Chapter of the ICD9 code tree. [View a full json representation of the taxonomy here.](./icd9_full.json) For this implementation, ICD-9 Code levels are broken down into Chapters, Blocks, Categories. To expand on this implementation the Tree can be broken down further into Sub-categories, Extension I, and Extension II codes.
   
 The coding algorithm recursively walks the tree, starting at the top level and continuing down any branch(es) directed by the mini model until the final codes is returned.
 
@@ -47,5 +47,8 @@ The coding algorithm recursively walks the tree, starting at the top level and c
 │   └── 088 Other arthropod-borne diseases   
 
   
+This approach is explored further in this paper:  
+ [Automated clinical coding using off-the-shelf large language models](https://arxiv.org/pdf/2310.06552) (Boyle et al.)
+
 ### Results
 
