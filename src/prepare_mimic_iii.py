@@ -2,6 +2,8 @@ import pandas as pd
 import logging
 import nltk
 
+from med_nlp import parse_note
+
 from string import digits
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -26,28 +28,6 @@ def remove_stop_words(text):
     filtered_sentence = [word for word in word_tokens if word.lower() not in stop_words]
     return ' '.join(filtered_sentence)
 
-def clean_note_text(text: str) -> str:
-   
-    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
-    text = text.replace('\"', '').replace('\'', '')
-    text = text.replace('*','').replace('#','').replace(':','').replace(';','')
-    text = text.replace('[','').replace(']','').replace('{','').replace('}','').replace('(','').replace(')','')
-    text = text.replace('-',' ')
-
-    # Remove numbers
-    remove_digits = str.maketrans('', '', digits)
-    text = text.translate(remove_digits)
-
-    # remove stop words
-    text = remove_stop_words(text)
-
-    # Remove extra whitespace
-    # text = ' '.join(text.split())
-
-    text = text.strip()
-
-    return text
-
 def transform_data(data_folder: str, subset:float = 1) -> None:
     
     
@@ -56,15 +36,13 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     logger.info(f"Data Parameters:\n max_notes: {max_notes}\n max_icd9_class: {max_icd_class}")
 
     # Read in data
-    # drg = pd.read_csv(data_folder + 'DRGCODES.csv.gz')
-    # d_icd = pd.read_csv(data_folder + 'D_ICD_DIAGNOSES.csv.gz')
     diagnoses = pd.read_csv(data_folder + 'raw/DIAGNOSES_ICD.csv.gz', usecols=['HADM_ID', 'ICD9_CODE'], dtype={'ICD9_CODE':str, 'HADM_ID':'Int64'})
     diagnoses = diagnoses[diagnoses['ICD9_CODE'].notna()]
     
     # Get NOTEEVENTS for HADM_IDs with only <max_notes>
     note_events = pd.DataFrame()
     logger.info("Reading in NOTEEVENTS.csv.gz")
-    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=100000):
+    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=20000):
         # Get HADM_IDs with only one note
         sub_df = reader[reader['HADM_ID'].map(reader['HADM_ID'].value_counts()) <= max_notes]
         note_events = pd.concat([note_events, sub_df])
@@ -80,19 +58,19 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     # Shorten codes to 3 digits (for now)
     diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].str.slice(0, 3)
 
-    # Clean Note Text
-    logger.info("Cleaning note text")
-    note_events['TEXT'] = note_events['TEXT'].apply(clean_note_text) # TODO - improve
-
     # Start with just the 001-max classes
     diagnoses = diagnoses[diagnoses['ICD9_CODE'].apply(lambda x: int(x)) <= max_icd_class]
+
+    # Clean Note Text - Moved to coding notebook
+    #logger.info("Cleaning note text")
+    #note_events['PARSED_TEXT'] = note_events['TEXT'].apply(parse_note)
 
     # Join datasets
     logger.info("Joining datasets")
     joined = note_events.join(diagnoses.set_index("HADM_ID"), on=['HADM_ID'], how='inner').groupby(['HADM_ID']).agg(tuple).map(set).map(list).reset_index()
 
     # write dataframe
-    output_path = "joined/dataset_single_001_088.csv.gz"
+    output_path = "joined/dataset_single_parsed_001_088.csv.gz"
     joined.to_csv(data_folder + output_path, index=False, compression='gzip')
     logger.info(f"Write dataframe to {data_folder + output_path}")
 

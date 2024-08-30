@@ -8,6 +8,7 @@ dependencies:
   - pip:
     - python-dotenv
     - azure-ai-ml
+    - zensols.mednlp
     - plotly
     - nbformat
     - numpy
@@ -16,3 +17,7 @@ dependencies:
     - openpyxl
     - openai
     - nltk
+    - anytree
+    - tqdm
+    - azure-ai-textanalytics==5.2.0
+    

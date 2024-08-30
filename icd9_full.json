@@ -5,7 +5,21 @@
     "L1": [
         { "name": "0", "description": "Infectious and Parasitic Diseases" , "parent": "root" },
         { "name": "1", "description": "Neoplasms", "parent": "root" },
-        { "name": "2", "description": "Endocrine, Nutritional and Metabolic Diseases, and Immunity Disorders", "parent": "root" }
+        { "name": "2", "description": "Endocrine, Nutritional and Metabolic Diseases, and Immunity Disorders", "parent": "root" },
+        { "name": "3", "description": "Diseases of the Blood and Blood-forming Organs"},
+        { "name": "4", "description": "Mental Disorders"},
+        { "name": "5", "description": "Diseases of the Nervous System and Sense Organs"},
+        { "name": "6", "description": "Diseases of the Circulatory System"},
+        { "name": "7", "description": "Diseases of the Respiratory System"},
+        { "name": "8", "description": "Diseases of the Digestive System"},
+        { "name": "9", "description": "Diseases of the Genitourinary System"},
+        { "name": "10", "description": "Complications of Pregnancy, Childbirth, and the Puerperium"},
+        { "name": "11", "description": "Diseases of the Skin and Subcutaneous Tissue"},
+        { "name": "12", "description": "Diseases of the Musculoskeletal System and Connective Tissue"},
+        { "name": "13", "description": "Congenital Anomalies"},
+        { "name": "14", "description": "Certain Conditions originating in the Perinatal Period"},
+        { "name": "15", "description": "Symptoms, Signs and Ill-defined Conditions"},
+        { "name": "16", "description": "Injury and Poisoning"}
     ],
     "L2": [
         { "name": "00", "description": "Intestinal infectious diseases","parent": "0"},
