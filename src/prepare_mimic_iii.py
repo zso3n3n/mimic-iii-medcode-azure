@@ -2,8 +2,6 @@ import pandas as pd
 import logging
 import nltk
 
-from med_nlp import parse_note
-
 from string import digits
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -60,10 +58,6 @@ def transform_data(data_folder: str, chunksize:int = None) -> None:
 
     # Start with just the 001-max classes
     diagnoses = diagnoses[diagnoses['ICD9_CODE'].apply(lambda x: int(x)) <= max_icd_class]
-
-    # Clean Note Text - Moved to coding notebook
-    #logger.info("Cleaning note text")
-    #note_events['PARSED_TEXT'] = note_events['TEXT'].apply(parse_note)
 
     # Join datasets
     logger.info("Joining datasets")

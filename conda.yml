@@ -20,4 +20,5 @@ dependencies:
     - anytree
     - tqdm
     - azure-ai-textanalytics==5.2.0
+    - tiktoken
     
