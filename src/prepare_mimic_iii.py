@@ -28,7 +28,7 @@ def remove_stop_words(text):
     filtered_sentence = [word for word in word_tokens if word.lower() not in stop_words]
     return ' '.join(filtered_sentence)
 
-def transform_data(data_folder: str, subset:float = 1) -> None:
+def transform_data(data_folder: str, chunksize:int = None) -> None:
     
     
     max_notes = 1
@@ -42,7 +42,7 @@ def transform_data(data_folder: str, subset:float = 1) -> None:
     # Get NOTEEVENTS for HADM_IDs with only <max_notes>
     note_events = pd.DataFrame()
     logger.info("Reading in NOTEEVENTS.csv.gz")
-    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=20000):
+    for reader in pd.read_csv(data_folder + 'raw/NOTEEVENTS.csv.gz', usecols=['HADM_ID','TEXT'], dtype={'text':str,'HADM_ID':'Int64'}, chunksize=chunksize):
         # Get HADM_IDs with only one note
         sub_df = reader[reader['HADM_ID'].map(reader['HADM_ID'].value_counts()) <= max_notes]
         note_events = pd.concat([note_events, sub_df])
