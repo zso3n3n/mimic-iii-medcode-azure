@@ -1,15 +1,14 @@
 import pandas as pd
 import logging
-import nltk
+import ast
 
-from string import digits
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-nltk.download('punkt')
-nltk.download('stopwords')
+from icd9_tree import ICD9
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+tree = ICD9('icd9_codes_full.json')
+logger.info(f"Loaded tree with {len(tree.children)} chapters")
 
 
 def remove_evm_codes(df: pd.DataFrame) -> pd.DataFrame:
@@ -20,11 +19,15 @@ def remove_evm_codes(df: pd.DataFrame) -> pd.DataFrame:
     output = output[~output['ICD9_CODE'].str.startswith("M")]
     return output
 
-def remove_stop_words(text):
-    stop_words = set(stopwords.words('english'))
-    word_tokens = word_tokenize(text)
-    filtered_sentence = [word for word in word_tokens if word.lower() not in stop_words]
-    return ' '.join(filtered_sentence)
+def get_cat_code(code_list, level, tree):
+    chapter_code_list = []
+    for code in code_list:
+        try:
+            chapter_code_list.append(tree.find(code).parents[level].code)
+        except:
+            logger.warning(f"Code {code} not found in tree")
+                
+    return list(set(chapter_code_list))
 
 def transform_data(data_folder: str, chunksize:int = None) -> None:
     
@@ -57,14 +60,18 @@ def transform_data(data_folder: str, chunksize:int = None) -> None:
     diagnoses['ICD9_CODE'] = diagnoses['ICD9_CODE'].str.slice(0, 3)
 
     # Start with just the 001-max classes
-    diagnoses = diagnoses[diagnoses['ICD9_CODE'].apply(lambda x: int(x)) <= max_icd_class]
+    # diagnoses = diagnoses[diagnoses['ICD9_CODE'].apply(lambda x: int(x)) <= max_icd_class]
 
     # Join datasets
     logger.info("Joining datasets")
     joined = note_events.join(diagnoses.set_index("HADM_ID"), on=['HADM_ID'], how='inner').groupby(['HADM_ID']).agg(tuple).map(set).map(list).reset_index()
 
+    # get categories codes
+    joined['chapter_codes'] = joined['ICD9_CODE'].apply(lambda x: get_cat_code(x,1, tree))
+    joined['subcat_codes'] = joined['ICD9_CODE'].apply(lambda x: get_cat_code(x,2, tree))
+
     # write dataframe
-    output_path = "joined/dataset_single_parsed_001_088.csv.gz"
+    output_path = "joined/dataset_single_notes_full.csv.gz"
     joined.to_csv(data_folder + output_path, index=False, compression='gzip')
     logger.info(f"Write dataframe to {data_folder + output_path}")
 
@@ -72,6 +79,6 @@ def transform_data(data_folder: str, chunksize:int = None) -> None:
 
 
 if __name__ == "__main__":
-    df = transform_data('/home/zacksoenen/Projects/mimic-iii-medcode-azure/data/')
+    df = transform_data('/home/zacksoenen/Projects/mimic-iii-medcode-azure/data/', chunksize=50000)
     print(df.head(10))
     print(df.shape)
