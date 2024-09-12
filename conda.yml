@@ -8,7 +8,6 @@ dependencies:
   - pip:
     - python-dotenv
     - azure-ai-ml
-    - zensols.mednlp
     - plotly
     - nbformat
     - numpy
