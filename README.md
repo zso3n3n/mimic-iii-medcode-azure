@@ -2,7 +2,6 @@
 
 This repository provides a comprehensive survey and implementation of various AI techniques for to medical coding — a crucial task in healthcare for translating clinical documentation into standardized codes used for billing, treatment tracking, and medical research.
 
-
 ---
 ### 📒 Notebooks
 
