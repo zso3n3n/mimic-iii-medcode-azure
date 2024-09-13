@@ -17,10 +17,12 @@ Data for this analysis is from the semi-open [MIMIC-III Clinical Dataset](https:
 
 To run the repository code download the data to a data/ in the home directory. The following files are used:
 <small>
+```markdown
 - D_ICD_DIAGNOSES.csv.gz
 - DIAGNOSES_ICD.csv.gz
 - DRGCODES.csv.gz
 - NOTEEVENTS.csv.gz
+```
 </small>  
 
 Once you have accessed the MIMIC-III data set, prepare the data using the [prepare_mimic_iii.py](./src/prepare_mimic_iii.py) script provided in this repo.   
