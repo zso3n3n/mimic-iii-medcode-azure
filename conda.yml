@@ -18,6 +18,8 @@ dependencies:
     - nltk
     - anytree
     - tqdm
-    - azure-ai-textanalytics==5.2.0
+    - azure-ai-textanalytics==5.3.0
+    - fuzzywuzzy
+    - python-Levenshtein
     - tiktoken
     
