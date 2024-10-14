@@ -13,7 +13,11 @@ This repository provides a comprehensive survey and implementation of various AI
 
 ---
 ### ⚕️ Data
-Data for this analysis is from the semi-open [MIMIC-III Clinical Dataset](https://physionet.org/content/mimiciii/1.4/). **The data is not permenantly stored in this repository.** To access the data, follow the steps on the linked website and complete the necessary trainings. This data is for research purposes only.
+Data for this analysis is from the semi-open [MIMIC-III Clinical Dataset](https://physionet.org/content/mimiciii/1.4/). **The data is not permenantly stored in this repository.** To access the data, follow the steps at the bottom of the page linked above and complete the necessary trainings. This data is for research purposes only. Use the "Massachusetts Institute of Technology Affiliates" for open source access.
+
+Scroll to the bottom of the linked page and click the 'credential user' link to kick off the process  
+
+![alt text](image.png)
 
 To run the repository code download the data to a data/ in the home directory. The following files are used:
 <small>
